@@ -365,10 +365,6 @@ Recommended reading:
   and ratings are mapped from embedding similarity to reference statements. The
   paper reports stronger purchase-intent replication than direct numeric
   Likert prompting.
-- [A Review of Experiments with Synthetic Users](https://measuringu.com/review-of-experiments-with-synthetic-users/)
-  is a useful skeptical review of the evidence base. It highlights recurring
-  risks: reduced variance, shallow qualitative narratives, distorted subgroup
-  estimates, and high-level agreement that can hide deeper errors.
 
 AudienceKit v0.1 keeps direct structured Likert questions because they are
 simple, inspectable, and useful for within-run pressure tests. Treat SSR-style
