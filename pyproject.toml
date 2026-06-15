@@ -23,4 +23,4 @@ dev = [
 packages = ["audiencekit", "audiencekit.data"]
 
 [tool.setuptools.package-data]
-audiencekit = ["data/*.csv"]
+audiencekit = ["data/*.zip"]

@@ -7,6 +7,8 @@ weighted synthetic audience panels from the prepared frame.
 
 from __future__ import annotations
 
+import zipfile
+from io import BytesIO
 from pathlib import Path
 from typing import Iterable
 
@@ -186,9 +188,9 @@ def load_gss(
 ) -> pd.DataFrame:
     """Read a full GSS file and return an AudienceKit persona frame.
 
-    Supported inputs are Stata ``.dta``, CSV, and Parquet files. For Stata,
-    ``convert_categoricals=False`` is used so the mapping layer handles codes
-    consistently across releases.
+    Supported inputs are Stata ``.dta``, zipped Stata files, CSV, and Parquet
+    files. For Stata, ``convert_categoricals=False`` is used so the mapping
+    layer handles codes consistently across releases.
     """
     source = Path(path)
     read_columns = columns or PERSONA_COLUMNS
@@ -196,7 +198,9 @@ def load_gss(
         read_columns = [*read_columns, weight_column]
 
     if source.suffix.lower() == ".dta":
-        raw = pd.read_stata(str(source), convert_categoricals=False, columns=read_columns)
+        raw = _read_stata_selected(str(source), read_columns)
+    elif source.suffix.lower() == ".zip":
+        raw = _read_stata_zip(source, read_columns)
     elif source.suffix.lower() == ".csv":
         raw = pd.read_csv(source, usecols=lambda col: col in set(read_columns))
     elif source.suffix.lower() in {".parquet", ".pq"}:
@@ -205,6 +209,34 @@ def load_gss(
         raise ValueError(f"Unsupported GSS file type: {source.suffix}")
 
     return prepare_gss_persona_frame(raw, years=years, weight_column=weight_column)
+
+
+def _read_stata_zip(source: Path, columns: list[str]) -> pd.DataFrame:
+    with zipfile.ZipFile(source) as archive:
+        stata_members = [
+            name
+            for name in archive.namelist()
+            if not name.endswith("/") and name.lower().endswith(".dta")
+        ]
+        if not stata_members:
+            raise ValueError(f"No .dta file found in {source}")
+        if len(stata_members) > 1:
+            raise ValueError(f"Expected one .dta file in {source}, found {stata_members}")
+        payload = BytesIO(archive.read(stata_members[0]))
+    return _read_stata_selected(payload, columns)
+
+
+def _read_stata_selected(source, columns: list[str]) -> pd.DataFrame:
+    try:
+        return pd.read_stata(source, convert_categoricals=False, columns=columns)
+    except ValueError as exc:
+        if "not found in the Stata data set" not in str(exc):
+            raise
+        if hasattr(source, "seek"):
+            source.seek(0)
+        raw = pd.read_stata(source, convert_categoricals=False)
+        available = [column for column in columns if column in raw.columns]
+        return raw[available]
 
 
 def prepare_gss_persona_frame(

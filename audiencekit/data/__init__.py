@@ -1,1 +1,1 @@
-"""Packaged sample data for AudienceKit examples."""
+"""Packaged public-use GSS data for AudienceKit examples."""

@@ -16,7 +16,7 @@ import pandas as pd
 
 from .primitives import AudienceFrame, PersonaTemplate
 
-DEFAULT_PANEL_RESOURCE = "gss_panel_2022.csv"
+DEFAULT_PANEL_RESOURCE = "2024_stata.zip"
 
 # Income values used as the affluence anchor for the luxury segment.
 HIGH_INCOME_VALUES = {
@@ -69,16 +69,23 @@ def build_persona(attributes: Mapping[str, Any]) -> str:
 
 
 def load_panel(path: str | Path | None = None) -> pd.DataFrame:
-    """Load a prepared AudienceKit persona panel CSV.
+    """Load a prepared AudienceKit persona panel.
 
-    With no path, loads the small bundled GSS 2022 sample panel. For production
-    studies, prefer an explicit frame prepared from the full source dataset.
+    With no path, loads the bundled GSS 2024 public-use Stata file and prepares
+    it as an AudienceKit frame. Explicit paths can point to either a prepared
+    panel CSV or a raw GSS source file supported by ``audiencekit.gss.load_gss``.
     """
     if path is None:
         with resources.as_file(resources.files("audiencekit").joinpath("data", DEFAULT_PANEL_RESOURCE)) as bundled:
-            df = pd.read_csv(bundled, dtype=str)
-    else:
+            from .gss import load_gss
+
+            df = load_gss(bundled, years=[2024])
+    elif Path(path).suffix.lower() == ".csv":
         df = pd.read_csv(path, dtype=str)
+    else:
+        from .gss import load_gss
+
+        df = load_gss(path)
     if "id" not in df.columns:
         raise ValueError(f"Panel file {path} has no 'id' column")
     return df

@@ -32,7 +32,7 @@ def test_no_old_project_references_in_source_tree() -> None:
             continue
         if any(part in SKIP_DIRS or part.endswith(".egg-info") for part in path.parts):
             continue
-        if path.suffix in {".pyc", ".jpg", ".whl", ".gz"}:
+        if path.suffix in {".pyc", ".jpg", ".whl", ".gz", ".zip"}:
             continue
         text = path.read_text(errors="ignore")
         for needle in BLOCKED_REFERENCES:

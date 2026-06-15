@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import zipfile
+
 import pandas as pd
 import pytest
 
 from audiencekit import build_persona, load_panel, sample_panel
-from audiencekit.gss import prepare_gss_persona_frame
+from audiencekit.gss import load_gss, prepare_gss_persona_frame
 
 
 def test_sample_panel_accepts_callable_segment_and_uses_weights() -> None:
@@ -33,11 +35,55 @@ def test_sample_panel_accepts_callable_segment_and_uses_weights() -> None:
     assert sampled["segment"].tolist() == ["affluent", "affluent", "affluent"]
 
 
-def test_load_panel_defaults_to_packaged_sample_panel() -> None:
+def test_load_panel_defaults_to_packaged_2024_panel() -> None:
     panel = load_panel()
 
     assert {"id", "weight", "age", "sex"}.issubset(panel.columns)
     assert len(panel) > 1000
+    assert panel["id"].str.startswith("2024-").all()
+
+
+def test_load_gss_reads_zipped_stata_file(tmp_path) -> None:
+    raw = pd.DataFrame(
+        {
+            "id": [301],
+            "year": [2024],
+            "wtssnrps": [1.5],
+            "age": [52],
+            "sex": [1],
+            "race": [1],
+            "region": [4],
+            "res16": [3],
+            "marital": [1],
+            "educ": [16],
+            "degree": [3],
+            "income16": [24],
+            "occ10": [10],
+            "prestg10": [65],
+            "finrela": [4],
+            "satfin": [1],
+            "partyid": [3],
+            "polviews": [4],
+            "relig": [4],
+            "attend": [0],
+            "childs": [2],
+            "happy": [2],
+            "health": [2],
+            "tvhours": [1],
+            "usewww": [1],
+            "getahead": [1],
+        }
+    )
+    dta_path = tmp_path / "GSS2024.dta"
+    zip_path = tmp_path / "2024_stata.zip"
+    raw.to_stata(dta_path, write_index=False)
+    with zipfile.ZipFile(zip_path, "w") as archive:
+        archive.write(dta_path, arcname="2024/GSS2024.dta")
+
+    panel = load_gss(zip_path, years=[2024])
+
+    assert panel["id"].tolist() == ["2024-301"]
+    assert panel.loc[0, "sex"] == "Male"
 
 
 def test_weighted_sampling_requires_positive_weight_column() -> None:
