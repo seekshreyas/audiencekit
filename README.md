@@ -139,10 +139,9 @@ The default GSS persona uses these prepared columns:
 ak.GSS_PERSONA_FIELDS
 # (
 #     "age", "sex", "race_detail", "region", "res16", "born", "marital",
-#     "childs", "adults", "sibs", "educ", "degree", "madeg", "income16",
-#     "earnrs", "class", "wrkstat", "weekswrk", "wrkslf", "occ10",
-#     "prestg10", "finrela", "satfin", "partyid", "polviews", "reltrad",
-#     "relpersn", "attend", "happy", "health", "natsoc",
+#     "childs", "adults", "sibs", "degree", "madeg", "income16", "class",
+#     "wrkstat", "occ10", "prestg10", "finrela", "satfin", "partyid",
+#     "polviews", "relig", "relpersn", "attend", "happy", "health",
 # )
 ```
 
@@ -151,7 +150,10 @@ each default field is available for at least 70% of the prepared 2024 panel.
 When several variables have similar meaning, AudienceKit uses one pragmatic
 field: for example, `income16` instead of the compressed historical `income`,
 `race_detail` from `RACECEN1` instead of the three-category `RACE`, and
-`reltrad` instead of stacking multiple religion-category fields.
+`relig` instead of stacking multiple religion-category fields. The default
+prompt intentionally omits some available high-coverage columns, such as
+`earnrs`, `weekswrk`, `wrkslf`, and `natsoc`, because they made general-purpose
+consumer personas sound contradictory or too policy-specific.
 
 Under the hood, the GSS row is rendered with this template:
 
@@ -159,23 +161,21 @@ Under the hood, the GSS row is rendered with this template:
 You are a {age} year old {sex} adult living in the {region} region of the United States.
 You describe your race or ethnicity as {race_detail}; you were {born}, and you were raised {res16}.
 You are {marital}, have {childs} children, and your household has {adults}.
-You had {sibs}. Your highest education is {educ} (degree: {degree}); your mother's highest degree was {madeg}.
+You had {sibs}. Your highest degree is {degree}; your mother's highest degree was {madeg}.
 Your reported family income last year before taxes was {income16}, from all family sources, not just salary.
-Your household had {earnrs} in the family earning money from work. You describe your social class as {class}.
-Your current labor-force status is {wrkstat}. When working, you are or were {wrkslf}, and you worked {weekswrk} last year.
-Your occupation area is {occ10} (occupational prestige: {prestg10}).
-Compared with other households, your financial situation is {finrela}, and you feel {satfin} about it.
+You describe your social class as {class}.
+Your labor-force status is {wrkstat}. Your current or most recent occupation area is {occ10} (occupational prestige: {prestg10}).
+Compared with other households, your financial situation is {finrela}; financial satisfaction: {satfin}.
 Politically you identify as {partyid} and consider yourself {polviews}.
-Your religious tradition is {reltrad}; you describe yourself as {relpersn}, and you attend services {attend}.
+Your religious preference is {relig}; you describe yourself as {relpersn}, and you attend services {attend}.
 You describe yourself as {happy} overall and your health as {health}.
-On Social Security spending, you think the country spends {natsoc}.
 ```
 
 The `income16` field is the GSS expanded current-family-income card. AudienceKit
 renders it as reported family income from all family sources, not as salary.
 The 2024 GSS `REGION` field is rendered with its current four-category coding
 (`Northeast`, `Midwest`, `South`, `West`). Missing non-core fields render as
-`Unknown`.
+`not reported`.
 
 ## How It Works
 
@@ -355,8 +355,8 @@ respondents = ak.sample_panel(pool, n=600, weighted=True, seed=42)
 
 `audiencekit.gss` reads `.dta`, zipped Stata, CSV, and Parquet inputs; maps
 selected GSS codes to readable labels; preserves the GSS survey weight as
-`weight`; and keeps missing non-core persona attributes as `Unknown` rather than
-dropping those respondents.
+`weight`; and keeps missing non-core persona attributes as `not reported` rather
+than dropping those respondents.
 
 For GSS personas, AudienceKit uses `INCOME16` as the single default income
 field. It is rendered as reported family income last year before taxes, from all

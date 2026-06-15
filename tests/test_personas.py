@@ -192,6 +192,7 @@ def test_prepare_gss_persona_frame_maps_rich_high_coverage_persona_fields() -> N
             "satfin": [1],
             "partyid": [3],
             "polviews": [4],
+            "relig": [4],
             "reltrad": [7],
             "relpersn": [4],
             "attend": [0],
@@ -214,38 +215,44 @@ def test_prepare_gss_persona_frame_maps_rich_high_coverage_persona_fields() -> N
     assert panel.loc[0, "sibs"] == "6 or more siblings"
     assert panel.loc[0, "madeg"] == "Bachelor's"
     assert panel.loc[0, "occ10"] == "management, business, science, and arts occupations"
+    assert panel.loc[0, "relig"] == "None"
     assert panel.loc[0, "reltrad"] == "nonaffiliated"
     assert panel.loc[0, "relpersn"] == "not religious at all"
     assert panel.loc[0, "natsoc"] == "too little"
 
 
-def test_gss_persona_fields_use_high_coverage_defaults() -> None:
+def test_gss_persona_fields_use_high_coverage_low_conflict_defaults() -> None:
     expected = {
         "race_detail",
         "wrkstat",
-        "weekswrk",
-        "wrkslf",
-        "earnrs",
         "adults",
         "born",
         "sibs",
         "madeg",
-        "reltrad",
+        "relig",
         "relpersn",
+    }
+    omitted_from_default_prompt = {
+        "tvhours",
+        "usewww",
+        "getahead",
+        "earnrs",
+        "weekswrk",
+        "wrkslf",
         "natsoc",
     }
-    low_coverage = {"tvhours", "usewww", "getahead"}
 
     assert expected.issubset(set(ak.GSS_PERSONA_FIELDS))
-    assert low_coverage.isdisjoint(set(ak.GSS_PERSONA_FIELDS))
+    assert omitted_from_default_prompt.isdisjoint(set(ak.GSS_PERSONA_FIELDS))
 
 
-def test_build_persona_renders_unknown_for_missing_values() -> None:
+def test_build_persona_renders_not_reported_for_missing_values() -> None:
     persona = build_persona({"age": 44, "sex": "Female", "race": None})
 
     assert "44 year old Female adult" in persona
-    assert "race or ethnicity as Unknown" in persona
-    assert "reported family income last year before taxes was Unknown" in persona
+    assert "race or ethnicity as not reported" in persona
+    assert "reported family income last year before taxes was not reported" in persona
+    assert "not reported about it" not in persona
 
 
 def test_build_persona_frames_income16_as_reported_family_income_not_salary() -> None:
@@ -279,18 +286,15 @@ def test_public_gss_persona_template_renders_rows_like_build_persona() -> None:
         "degree": "Bachelor's",
         "madeg": "High school",
         "income16": "$10,000 to $12,499",
-        "earnrs": "1 earner",
         "class": "Working Class",
         "wrkstat": "retired",
-        "weekswrk": "0 weeks",
-        "wrkslf": "working for someone else",
         "occ10": "service occupations",
         "prestg10": "Low",
         "finrela": "Below average",
         "satfin": "Not Satisfied",
         "partyid": "Independent",
         "polviews": "Moderate",
-        "reltrad": "nonaffiliated",
+        "relig": "None",
         "relpersn": "not religious at all",
         "attend": "Never",
         "childs": "0",
@@ -298,9 +302,70 @@ def test_public_gss_persona_template_renders_rows_like_build_persona() -> None:
         "sibs": "2 siblings",
         "happy": "Pretty Happy",
         "health": "Good",
-        "natsoc": "too little",
     }
 
     assert isinstance(ak.GSS_PERSONA_TEMPLATE, ak.PersonaTemplate)
     assert "income16" in ak.GSS_PERSONA_FIELDS
     assert ak.GSS_PERSONA_TEMPLATE.render(row) == ak.build_persona(row)
+
+
+def test_default_gss_persona_omits_conflict_prone_work_and_policy_fields() -> None:
+    row = {
+        "age": "46",
+        "sex": "Female",
+        "race_detail": "White",
+        "region": "Midwest",
+        "res16": "in a medium-size city (50,000-250,000)",
+        "born": "born in the United States",
+        "marital": "Divorced",
+        "childs": "3",
+        "adults": "2 adults",
+        "sibs": "3 siblings",
+        "degree": "High school",
+        "madeg": "Less than high school",
+        "income16": "$60,000 to $74,999",
+        "earnrs": "0 earners",
+        "class": "Working Class",
+        "wrkstat": "working full time",
+        "weekswrk": "0 weeks",
+        "wrkslf": "working for someone else",
+        "occ10": "production, transportation, and material moving occupations",
+        "prestg10": "Low",
+        "finrela": "Below average",
+        "satfin": "Not Satisfied",
+        "partyid": "Republican",
+        "polviews": "Conservative",
+        "relig": "Protestant",
+        "relpersn": "moderately religious",
+        "attend": "Nearly Every Week",
+        "happy": "Pretty Happy",
+        "health": "Good",
+        "natsoc": "about right",
+    }
+
+    persona = ak.build_persona(row)
+
+    assert "labor-force status is working full time" in persona
+    assert "current or most recent occupation area" in persona
+    assert "0 earners" not in persona
+    assert "0 weeks" not in persona
+    assert "working for someone else" not in persona
+    assert "Social Security" not in persona
+
+
+def test_default_gss_persona_uses_religion_preference_not_religious_tradition() -> None:
+    persona = ak.build_persona(
+        {
+            "age": "39",
+            "sex": "Female",
+            "race_detail": "White",
+            "region": "Northeast",
+            "relig": "Catholic",
+            "reltrad": "not reported",
+            "relpersn": "slightly religious",
+            "attend": "Once A Year",
+        }
+    )
+
+    assert "Your religious preference is Catholic" in persona
+    assert "religious tradition" not in persona

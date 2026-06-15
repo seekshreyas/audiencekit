@@ -27,41 +27,38 @@ HIGH_INCOME_VALUES = {
 
 GSS_PERSONA_FIELDS = (
     "age", "sex", "race_detail", "region", "res16", "born", "marital",
-    "childs", "adults", "sibs", "educ", "degree", "madeg", "income16",
-    "earnrs", "class", "wrkstat", "weekswrk", "wrkslf", "occ10",
-    "prestg10", "finrela", "satfin", "partyid", "polviews", "reltrad",
-    "relpersn", "attend", "happy", "health", "natsoc",
+    "childs", "adults", "sibs", "degree", "madeg", "income16", "class",
+    "wrkstat", "occ10", "prestg10", "finrela", "satfin", "partyid",
+    "polviews", "relig", "relpersn", "attend", "happy", "health",
 )
 
 PERSONA_TEMPLATE = """\
 You are a {age} year old {sex} adult living in the {region} region of the United States.
 You describe your race or ethnicity as {race_detail}; you were {born}, and you were raised {res16}.
 You are {marital}, have {childs} children, and your household has {adults}.
-You had {sibs}. Your highest education is {educ} (degree: {degree}); your mother's highest degree was {madeg}.
+You had {sibs}. Your highest degree is {degree}; your mother's highest degree was {madeg}.
 Your reported family income last year before taxes was {income16}, from all family sources, not just salary.
-Your household had {earnrs} in the family earning money from work. You describe your social class as {class}.
-Your current labor-force status is {wrkstat}. When working, you are or were {wrkslf}, and you worked {weekswrk} last year.
-Your occupation area is {occ10} (occupational prestige: {prestg10}).
-Compared with other households, your financial situation is {finrela}, and you feel {satfin} about it.
+You describe your social class as {class}.
+Your labor-force status is {wrkstat}. Your current or most recent occupation area is {occ10} (occupational prestige: {prestg10}).
+Compared with other households, your financial situation is {finrela}; financial satisfaction: {satfin}.
 Politically you identify as {partyid} and consider yourself {polviews}.
-Your religious tradition is {reltrad}; you describe yourself as {relpersn}, and you attend services {attend}.
-You describe yourself as {happy} overall and your health as {health}.
-On Social Security spending, you think the country spends {natsoc}."""
-GSS_PERSONA_TEMPLATE = PersonaTemplate(PERSONA_TEMPLATE)
+Your religious preference is {relig}; you describe yourself as {relpersn}, and you attend services {attend}.
+You describe yourself as {happy} overall and your health as {health}."""
+GSS_PERSONA_TEMPLATE = PersonaTemplate(PERSONA_TEMPLATE, missing_value="not reported")
 
 
 def normalize(value: object) -> str:
-    """Map missing/invalid values to the literal string 'Unknown'."""
+    """Map missing/invalid values to the literal string 'not reported'."""
     if value is None:
-        return "Unknown"
+        return "not reported"
     try:
         if pd.isna(value):
-            return "Unknown"
+            return "not reported"
     except (TypeError, ValueError):
         pass
     text = str(value).strip()
     if not text or text.lower() in {"nan", "invalid", "refused", "don't know"}:
-        return "Unknown"
+        return "not reported"
     return text
 
 
@@ -69,7 +66,7 @@ def build_persona(attributes: Mapping[str, Any]) -> str:
     """Render the persona card for one respondent row (dict or Series)."""
     fields = {key: attributes.get(key) for key in GSS_PERSONA_FIELDS}
     fields["race_detail"] = fields.get("race_detail") or attributes.get("race")
-    fields["reltrad"] = fields.get("reltrad") or attributes.get("relig")
+    fields["relig"] = fields.get("relig") or attributes.get("reltrad")
     return GSS_PERSONA_TEMPLATE.render(fields)
 
 

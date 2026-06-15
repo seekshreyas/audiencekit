@@ -43,6 +43,7 @@ SOURCE_COLUMNS = [
     "satfin",
     "partyid",
     "polviews",
+    "relig",
     "reltrad",
     "relpersn",
     "attend",
@@ -81,6 +82,7 @@ PERSONA_COLUMNS = [
     "satfin",
     "partyid",
     "polviews",
+    "relig",
     "reltrad",
     "relpersn",
     "attend",
@@ -91,7 +93,7 @@ PERSONA_COLUMNS = [
 ]
 
 # Rows must be complete only on post-stratification fields plus a valid weight.
-# Income and other attributes may be missing and render as "Unknown".
+# Income and other attributes may be missing and render as "not reported".
 CORE_FIELDS = ["age", "sex", "race", "region", "educ"]
 
 GSS_MISSING_VALUES = {-100, -99, -98, -97, -90, -80, -70}
@@ -276,6 +278,21 @@ MAPPINGS = {
         5: "Republican",
         6: "Strong Republican",
         7: "Other",
+    },
+    "relig": {
+        1: "Protestant",
+        2: "Catholic",
+        3: "Jewish",
+        4: "None",
+        5: "Other",
+        6: "Buddhist",
+        7: "Hindu",
+        8: "Other Eastern religion",
+        9: "Muslim",
+        10: "Orthodox Christian",
+        11: "Christian",
+        12: "Native American religion",
+        13: "Inter-nondenominational",
     },
     "class": {1: "Lower Class", 2: "Working Class", 3: "Middle Class", 4: "Upper Class"},
     "satfin": {1: "Satisfied", 2: "More or less satisfied", 3: "Not Satisfied"},
