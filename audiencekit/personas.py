@@ -25,11 +25,18 @@ HIGH_INCOME_VALUES = {
     "$170,000 or over",
 }
 
+GSS_PERSONA_FIELDS = (
+    "age", "sex", "race", "region", "res16", "marital", "educ",
+    "degree", "income16", "class", "occ10", "prestg10", "finrela",
+    "satfin", "partyid", "polviews", "relig", "attend", "childs",
+    "happy", "health", "tvhours", "usewww", "getahead",
+)
+
 PERSONA_TEMPLATE = """\
 You are a {age} year old {sex} {race} adult living in the {region} region of the United States, raised {res16}.
 You are {marital}. Your highest education is {educ} (degree: {degree}).
 Your reported family income last year before taxes was {income16}, from all family sources, not just salary.
-You describe your social class as {class_}.
+You describe your social class as {class}.
 You work in: {occ10} (occupational prestige: {prestg10}). Compared with other households, your financial situation is {finrela}, and you feel {satfin} about it.
 Politically you identify as {partyid} and consider yourself {polviews}.
 Your religious preference is {relig}; you attend services {attend}.
@@ -56,16 +63,7 @@ def normalize(value: object) -> str:
 
 def build_persona(attributes: Mapping[str, Any]) -> str:
     """Render the persona card for one respondent row (dict or Series)."""
-    fields: dict[str, Any] = {
-        key: attributes.get(key)
-        for key in [
-            "age", "sex", "race", "region", "res16", "marital", "educ",
-            "degree", "income16", "occ10", "prestg10", "finrela", "satfin",
-            "partyid", "polviews", "relig", "attend", "childs", "happy",
-            "health", "tvhours", "usewww", "getahead",
-        ]
-    }
-    fields["class_"] = attributes.get("class")
+    fields = {key: attributes.get(key) for key in GSS_PERSONA_FIELDS}
     return GSS_PERSONA_TEMPLATE.render(fields)
 
 

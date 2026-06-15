@@ -125,15 +125,24 @@ import audiencekit as ak
 pool = ak.load_panel()
 row = ak.sample_panel(pool, n=1, seed=13).iloc[0].to_dict()
 
-print(ak.build_persona(row))
+template = ak.GSS_PERSONA_TEMPLATE
+print(template.render(row))
 ```
+
+`ak.build_persona(row)` is the same default renderer as a convenience function.
+Use `ak.GSS_PERSONA_TEMPLATE` when you want the default GSS prompt to look like
+the custom `PersonaTemplate` API.
 
 The default GSS persona uses these prepared columns:
 
-```text
-age, sex, race, region, res16, marital, educ, degree, income16,
-class, occ10, prestg10, finrela, satfin, partyid, polviews,
-relig, attend, childs, happy, health, tvhours, usewww, getahead
+```python
+ak.GSS_PERSONA_FIELDS
+# (
+#     "age", "sex", "race", "region", "res16", "marital", "educ",
+#     "degree", "income16", "class", "occ10", "prestg10", "finrela",
+#     "satfin", "partyid", "polviews", "relig", "attend", "childs",
+#     "happy", "health", "tvhours", "usewww", "getahead",
+# )
 ```
 
 Under the hood, the GSS row is rendered with this template:
@@ -142,7 +151,7 @@ Under the hood, the GSS row is rendered with this template:
 You are a {age} year old {sex} {race} adult living in the {region} region of the United States, raised {res16}.
 You are {marital}. Your highest education is {educ} (degree: {degree}).
 Your reported family income last year before taxes was {income16}, from all family sources, not just salary.
-You describe your social class as {class_}.
+You describe your social class as {class}.
 You work in: {occ10} (occupational prestige: {prestg10}). Compared with other households, your financial situation is {finrela}, and you feel {satfin} about it.
 Politically you identify as {partyid} and consider yourself {polviews}.
 Your religious preference is {relig}; you attend services {attend}.

@@ -5,6 +5,7 @@ import zipfile
 import pandas as pd
 import pytest
 
+import audiencekit as ak
 from audiencekit import build_persona, load_panel, sample_panel
 from audiencekit.gss import load_gss, prepare_gss_persona_frame
 
@@ -158,3 +159,36 @@ def test_build_persona_frames_income16_as_reported_family_income_not_salary() ->
 
     assert "reported family income last year before taxes was $10,000 to $12,499" in persona
     assert "from all family sources, not just salary" in persona
+
+
+def test_public_gss_persona_template_renders_rows_like_build_persona() -> None:
+    row = {
+        "age": "68",
+        "sex": "Female",
+        "race": "White",
+        "region": "South Atlantic",
+        "res16": "in a large city (over 250,000)",
+        "marital": "Never Married",
+        "educ": "4 Years College",
+        "degree": "Bachelor's",
+        "income16": "$10,000 to $12,499",
+        "class": "Working Class",
+        "occ10": "Service occupations",
+        "prestg10": "Low",
+        "finrela": "Below average",
+        "satfin": "Not Satisfied",
+        "partyid": "Independent",
+        "polviews": "Moderate",
+        "relig": "None",
+        "attend": "Never",
+        "childs": "0",
+        "happy": "Pretty Happy",
+        "health": "Good",
+        "tvhours": "1",
+        "usewww": "Yes",
+        "getahead": "Hard Work",
+    }
+
+    assert isinstance(ak.GSS_PERSONA_TEMPLATE, ak.PersonaTemplate)
+    assert "income16" in ak.GSS_PERSONA_FIELDS
+    assert ak.GSS_PERSONA_TEMPLATE.render(row) == ak.build_persona(row)

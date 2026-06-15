@@ -12,7 +12,14 @@ Quick start:
 
 from .backends import AnthropicBackend, GeminiBackend, LLMBackend, OpenAIBackend, make_backend
 from .gss import load_gss, prepare_gss_persona_frame, write_gss_panel
-from .personas import build_persona, is_luxury_household, load_panel, sample_panel
+from .personas import (
+    GSS_PERSONA_FIELDS,
+    GSS_PERSONA_TEMPLATE,
+    build_persona,
+    is_luxury_household,
+    load_panel,
+    sample_panel,
+)
 from .primitives import AudienceFrame, PersonaTemplate
 from .survey import Question, Study, SyntheticPanel, build_survey_prompt, parse_json_response, render_persona
 
@@ -20,6 +27,8 @@ __all__ = [
     "AudienceFrame",
     "AnthropicBackend",
     "GeminiBackend",
+    "GSS_PERSONA_FIELDS",
+    "GSS_PERSONA_TEMPLATE",
     "LLMBackend",
     "OpenAIBackend",
     "PersonaTemplate",
