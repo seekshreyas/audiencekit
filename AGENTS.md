@@ -22,3 +22,13 @@ Open-source hygiene:
   substitutes for fieldwork.
 - Do not hard-code GSS assumptions into generic primitives; add new datasets
   as adapters beside `audiencekit.gss`.
+
+GSS variable semantics:
+
+- Before answering questions about GSS variable meanings or changing GSS
+  preprocessing, check the official documentation first. Use the
+  [2024 GSS Codebook Release 3](https://sda.berkeley.edu/sdaweb/docs/gss24rel3/DOC/GSS2024CodebookR3.pdf)
+  and the
+  [2024 GSS Release 3 variable guide](https://sda.berkeley.edu/sdaweb/docs/gss24rel3/DOC/GSS2024ReleaseVariablesR3.pdf).
+  Do not infer semantics from similar variable names alone, especially income
+  variables such as `INCOME16` and `INCOM16`.
