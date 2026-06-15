@@ -1,0 +1,49 @@
+{
+  "title": "Ferrari Luce — first fully electric GT concept test",
+  "stimulus": {
+    "description": "Ferrari has launched the Ferrari Luce, its first fully electric GT. The car is a five-seat, four-door Ferrari with a new exterior and interior design.",
+    "image": "examples/ferrari_luce/stimuli/ferrari-luce-front-side.jpg"
+  },
+  "treatments": {
+    "neutral": "Ferrari has launched the Ferrari Luce, its first fully electric GT. The car is a five-seat, four-door Ferrari with a new exterior and interior design.",
+    "heritage": "Ferrari has launched the Ferrari Luce, its first fully electric GT. Ferrari presents it as a new chapter in the Prancing Horse lineage, focused on Italian craft, driving emotion, and grand touring performance."
+  },
+  "questions": [
+    {
+      "id": "brand_fit",
+      "type": "likert",
+      "text": "How well does this car fit what the Ferrari brand means to you?"
+    },
+    {
+      "id": "emotional_pull",
+      "type": "likert",
+      "text": "How much excitement or desire does this car stir in you?"
+    },
+    {
+      "id": "ritual_loss",
+      "type": "likert",
+      "text": "How much would the absence of a roaring engine — the sound and feel of a traditional Ferrari — diminish this car for you?"
+    },
+    {
+      "id": "status_signal",
+      "type": "likert",
+      "text": "How strong a statement of status and success would owning this car make?"
+    },
+    {
+      "id": "ferrari_feel_verdict",
+      "type": "choice",
+      "text": "Bottom line: does this feel like a real Ferrari to you?",
+      "options": ["yes", "mixed", "no"]
+    },
+    {
+      "id": "first_reaction",
+      "type": "text",
+      "text": "What is your honest first reaction to this car?"
+    },
+    {
+      "id": "best_argument_against",
+      "type": "text",
+      "text": "What is the strongest argument against this car, from your point of view?"
+    }
+  ]
+}

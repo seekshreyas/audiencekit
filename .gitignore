@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+.worktrees/
+.claude/
+.agents/
+agent-browser.json
+results/
+examples/*/results/
+.ipynb_checkpoints/

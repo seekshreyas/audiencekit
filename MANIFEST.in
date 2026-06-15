@@ -1,0 +1,9 @@
+include LICENSE
+include NOTICE.md
+include README.md
+recursive-include examples *.md *.json *.ipynb *.jpg
+recursive-include audiencekit/data *.csv
+recursive-include skills SKILL.md
+recursive-include tests *.py
+prune results
+prune examples/*/results

@@ -1,0 +1,25 @@
+[project]
+name = "audiencekit"
+version = "0.1.0"
+description = "Synthetic audience studies grounded in real survey microdata"
+requires-python = ">=3.11"
+readme = "README.md"
+license = "MIT"
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "openai>=1.40",
+    "anthropic>=0.34",
+    "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools]
+packages = ["audiencekit", "audiencekit.data"]
+
+[tool.setuptools.package-data]
+audiencekit = ["data/*.csv"]

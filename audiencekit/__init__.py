@@ -1,0 +1,39 @@
+"""AudienceKit — synthetic audience studies grounded in real survey rows.
+
+Quick start:
+
+    import audiencekit as ak
+
+    pool = ak.load_panel()
+    respondents = ak.sample_panel(pool, n=30)
+    study = ak.Study.from_dict({...})
+    results = ak.SyntheticPanel(respondents).run_survey(study)
+"""
+
+from .backends import AnthropicBackend, LLMBackend, OpenAIBackend, make_backend
+from .gss import load_gss, prepare_gss_persona_frame, write_gss_panel
+from .personas import build_persona, is_luxury_household, load_panel, sample_panel
+from .primitives import AudienceFrame, PersonaTemplate
+from .survey import Question, Study, SyntheticPanel, build_survey_prompt, parse_json_response, render_persona
+
+__all__ = [
+    "AudienceFrame",
+    "AnthropicBackend",
+    "LLMBackend",
+    "OpenAIBackend",
+    "PersonaTemplate",
+    "Question",
+    "Study",
+    "SyntheticPanel",
+    "build_persona",
+    "build_survey_prompt",
+    "is_luxury_household",
+    "load_gss",
+    "load_panel",
+    "make_backend",
+    "parse_json_response",
+    "prepare_gss_persona_frame",
+    "render_persona",
+    "sample_panel",
+    "write_gss_panel",
+]
