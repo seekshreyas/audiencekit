@@ -54,6 +54,31 @@ def test_build_survey_prompt_accepts_study_objects() -> None:
     assert '"fit" (integer 1-5): Fit?' in prompt
 
 
+def test_synthetic_panel_keeps_question_columns_when_responses_fail() -> None:
+    respondents = pd.DataFrame([{"id": "r1", "age": "35", "sex": "Male"}])
+    study = Study.from_dict(
+        {
+            "title": "Concept test",
+            "questions": [
+                {"id": "fit", "type": "likert", "text": "Fit?"},
+                {"id": "verbatim", "type": "text", "text": "Reaction?"},
+            ],
+        }
+    )
+
+    class BrokenBackend:
+        def get_completion(self, prompt, image=None, **kwargs):
+            raise RuntimeError("backend unavailable")
+
+    panel = SyntheticPanel(respondents, backend=BrokenBackend())
+    results = panel.run_survey(study, verbose=False)
+
+    assert results.loc[0, "valid"] is False
+    assert "fit" in results.columns
+    assert "verbatim" in results.columns
+    assert pd.isna(results.loc[0, "fit"])
+
+
 def test_synthetic_panel_accepts_injected_backend() -> None:
     respondents = pd.DataFrame(
         [{"id": "r1", "age": "35", "sex": "Male", "region": "Pacific", "income16": "$50,000 to $59,999"}]

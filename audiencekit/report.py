@@ -37,6 +37,10 @@ def likert_summary(df: pd.DataFrame, survey: Study | dict) -> pd.DataFrame:
     """Mean and response distribution per likert question."""
     rows = []
     for qid in likert_ids(survey):
+        if qid not in df.columns:
+            rows.append({"question": qid, "n": 0, "mean": float("nan"),
+                         **{f"pct_{k}": 0.0 for k in range(1, 6)}})
+            continue
         valid = df[qid].dropna()
         counts = valid.value_counts().reindex([1, 2, 3, 4, 5], fill_value=0)
         rows.append({"question": qid, "n": len(valid), "mean": valid.mean(),

@@ -246,19 +246,25 @@ class SyntheticPanel:
         stimulus = survey_dict.get("stimulus") or {}
         image_path = image or stimulus.get("image")
 
+        first_error: list[BaseException | None] = [None]
+
         def _one(idx: int) -> dict:
             row = self.respondents.iloc[idx].to_dict()
             if self.prompt_builder:
                 prompt = self.prompt_builder(row, survey_dict)
             else:
                 prompt = build_survey_prompt(row, survey_dict, persona_template=self.persona_template)
+            parsed = None
             try:
                 raw = self.backend.get_completion(
                     prompt, image=image_path, temperature=self.temperature
                 )
                 parsed = parse_json_response(raw)
-            except RuntimeError:
-                parsed = None
+                if parsed is None and raw and first_error[0] is None:
+                    first_error[0] = ValueError("Model returned a response that could not be parsed as JSON")
+            except (RuntimeError, FileNotFoundError, ValueError) as exc:
+                if first_error[0] is None:
+                    first_error[0] = exc
             record = {
                 "respondent_id": row.get("id"),
                 "age": row.get("age"),
@@ -268,9 +274,8 @@ class SyntheticPanel:
                 "segment": row.get("segment", "broad"),
                 "valid": parsed is not None,
             }
-            if parsed:
-                for q in survey_dict["questions"]:
-                    record[q["id"]] = parsed.get(q["id"])
+            for q in survey_dict["questions"]:
+                record[q["id"]] = parsed.get(q["id"]) if parsed else None
             if verbose:
                 print(".", end="", flush=True)
             return record
@@ -280,6 +285,8 @@ class SyntheticPanel:
         if verbose:
             valid = sum(r["valid"] for r in records)
             print(f" done ({valid}/{len(records)} valid)")
+            if valid == 0 and first_error[0] is not None:
+                print(f"  First error: {first_error[0]}")
 
         df = pd.DataFrame(records)
         if "valid" in df.columns:

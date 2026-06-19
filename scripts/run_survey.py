@@ -65,9 +65,18 @@ def main() -> None:
     df.to_csv(out_csv, index=False)
 
     print(f"\nSaved {out_csv}")
+    valid_count = int(df["valid"].sum())
+    if valid_count == 0:
+        print(
+            "\nWarning: no valid responses were parsed. "
+            "Set GEMINI_API_KEY or GOOGLE_API_KEY from Google AI Studio "
+            "(https://aistudio.google.com/apikey) and rerun."
+        )
     print("\n=== Likert summary ===")
     print(likert_summary(df, survey).round(2).to_string(index=False))
     for qid in text_ids(survey):
+        if qid not in df.columns:
+            continue
         sample_answers = df[qid].dropna().head(3)
         if not sample_answers.empty:
             print(f"\n=== {qid} (first 3) ===")
