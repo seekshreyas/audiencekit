@@ -6,6 +6,21 @@ from audiencekit import Study
 from audiencekit.report import likert_summary, write_html_report
 
 
+def test_likert_summary_handles_missing_question_columns() -> None:
+    study = Study.from_dict(
+        {
+            "title": "Concept test",
+            "questions": [{"id": "fit", "type": "likert", "text": "Fit?"}],
+        }
+    )
+    df = pd.DataFrame({"valid": [False]})
+
+    summary = likert_summary(df, study)
+
+    assert summary.loc[0, "n"] == 0
+    assert pd.isna(summary.loc[0, "mean"])
+
+
 def test_likert_summary_counts_valid_scores() -> None:
     study = Study.from_dict(
         {
